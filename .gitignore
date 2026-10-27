@@ -1,0 +1,14 @@
+# Build output and dependencies
+.build/
+node_modules/
+*.xcodeproj/xcuserdata/
+.DS_Store
+
+# Large source video (kept locally, not in history)
+*.mp4
+
+# iOS build output
+RelayMobile/build/
+
+# Local Claude Code state
+.claude/

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.css">
+<style>
+  html, body, #root { margin: 0; height: 100%; background: transparent; }
+  .excalidraw .App-menu_top .layer-ui__wrapper__top-right { display: none; }
+</style>
+<script>window.EXCALIDRAW_ASSET_PATH = "https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/";</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+// Relay's Excalidraw bridge. Swift passes a resolved element skeleton (labels, start/end bindings) and gets back
+// an SVG for the inline card, or mounts the full editor for the expanded page.
+import React from "https://esm.sh/react@19.1.0";
+import { createRoot } from "https://esm.sh/react-dom@19.1.0/client";
+import { Excalidraw, exportToBlob, convertToExcalidrawElements } from "https://esm.sh/@excalidraw/excalidraw@0.18.1?deps=react@19.1.0,react-dom@19.1.0";
+
+const toElements = (json) => convertToExcalidrawElements(JSON.parse(json), { regenerateIds: false });
+
+// PNG via Excalidraw's own canvas, so the hand-drawn font and dark mode render exactly as in the editor.
+window.relayRenderPNG = async (json, dark) => {
+  await document.fonts.ready;
+  const blob = await exportToBlob({
+    elements: toElements(json),
+    appState: { exportBackground: true, viewBackgroundColor: "#ffffff", exportWithDarkMode: dark, exportScale: 2 },
+    files: {},
+    exportPadding: 24,
+    mimeType: "image/png",
+  });
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+};
+
+// The dark theme inverts the canvas, background included, so the background stays white and comes out dark.
+window.relayOpenEditor = (json, dark) => {
+  createRoot(document.getElementById("root")).render(
+    React.createElement(Excalidraw, {
+      initialData: { elements: toElements(json), appState: { viewBackgroundColor: "#ffffff" }, scrollToContent: true },
+      theme: dark ? "dark" : "light",
+      UIOptions: { canvasActions: { loadScene: false, saveToActiveFile: false } },
+    }),
+  );
+  return true;
+};
+
+window.relayReady = true;
+</script>
+</body>
+</html>
