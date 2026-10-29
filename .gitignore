@@ -4,8 +4,9 @@ node_modules/
 *.xcodeproj/xcuserdata/
 .DS_Store
 
-# Large source video (kept locally, not in history)
+# Large videos stay out of history; docs/ keeps the short README clip
 *.mp4
+!docs/*.mp4
 
 # iOS build output
 RelayMobile/build/
